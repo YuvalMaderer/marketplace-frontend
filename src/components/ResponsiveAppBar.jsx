@@ -11,11 +11,13 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { Link } from "react-router-dom";
+import { useUserContext } from "./UserProvider";
 
 const pages = ["Home", "Products", "Login", "Register"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 function ResponsiveAppBar() {
+  const { user, login, logout } = useUserContext();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -109,23 +111,43 @@ function ResponsiveAppBar() {
             LOGO
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                component={Link}
-                to={page === "Home" ? "/" : page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-                {page}
-              </Button>
-            ))}
+            {pages.map((page) => {
+              if (page === "Login" || page === "Register") {
+                return !user ? (
+                  <Button
+                    key={page}
+                    component={Link}
+                    to={page === "Home" ? "/" : page}
+                    onClick={handleCloseNavMenu}
+                    sx={{ my: 2, color: "white", display: "block" }}
+                  >
+                    {page}
+                  </Button>
+                ) : null;
+              } else {
+                return (
+                  <Button
+                    key={page}
+                    component={Link}
+                    to={page === "Home" ? "/" : page}
+                    onClick={handleCloseNavMenu}
+                    sx={{ my: 2, color: "white", display: "block" }}
+                  >
+                    {page}
+                  </Button>
+                );
+              }
+            })}
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                {user ? (
+                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                ) : (
+                  ""
+                )}
               </IconButton>
             </Tooltip>
             <Menu
@@ -144,11 +166,18 @@ function ResponsiveAppBar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
+              {settings.map((setting) => {
+                if (setting === "Logout") {
+                  return (
+                    <MenuItem key={setting} onClick={logout}>
+                      <Typography textAlign="center">{setting}</Typography>
+                    </MenuItem>
+                  );
+                }
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
                   <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
+                </MenuItem>;
+              })}
             </Menu>
           </Box>
         </Toolbar>
