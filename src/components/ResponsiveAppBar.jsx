@@ -177,6 +177,13 @@ function ResponsiveAppBar() {
                     </MenuItem>
                   );
                 }
+                if (setting === "Profile") {
+                  return (
+                    <MenuItem key={setting} component={Link} to="/Profile">
+                      <Typography textAlign="center">{setting}</Typography>
+                    </MenuItem>
+                  );
+                }
                 return (
                   <MenuItem key={setting} onClick={handleCloseUserMenu}>
                     <Typography textAlign="center">{setting}</Typography>

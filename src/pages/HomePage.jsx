@@ -1,5 +1,5 @@
 import React from "react";
-import { useCountContext } from "./CountProvider";
+import { useCountContext } from "../components/CountProvider";
 
 function HomePage() {
   const { count, setCount } = useCountContext();

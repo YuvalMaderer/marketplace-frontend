@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { PRODUCT_BASE_URL } from "../constants/url.constant";
 import { Pencil, Receipt, Trash2 } from "lucide-react";
-import { useUserContext } from "./UserProvider";
+import { useUserContext } from "../components/UserProvider";
 import { Button } from "@mui/material";
 import api from "../services/api.service";
 

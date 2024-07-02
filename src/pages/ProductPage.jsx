@@ -3,8 +3,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import Slider from "rc-slider"; // Importing Slider directly
 import "rc-slider/assets/index.css"; // Importing the CSS
 import { PRODUCT_BASE_URL } from "../constants/url.constant";
-import DynamicButtons from "./DynamicButtons";
-import { useUserContext } from "./UserProvider";
+import DynamicButtons from "../components/DynamicButtons";
+import { useUserContext } from "../components/UserProvider";
 import { Button } from "@mui/material";
 import api from "../services/api.service";
 
