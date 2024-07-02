@@ -4,12 +4,15 @@ import App from "./App.jsx";
 import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 import { UserProvider } from "./components/UserProvider.jsx";
+import CountProvider from "./components/CountProvider.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <UserProvider>
-        <App />
+        <CountProvider>
+          <App />
+        </CountProvider>
       </UserProvider>
     </BrowserRouter>
   </React.StrictMode>

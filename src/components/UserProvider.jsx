@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { formatJWTTokenToUser } from "../utiles/tokenformat.utils";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import api from "../services/api.service";
 
 const UserContext = createContext(null);
 
@@ -10,6 +11,7 @@ export const UserProvider = ({ children }) => {
   // Get token and userId
   const token = localStorage.getItem("token");
   const { userId } = token ? formatJWTTokenToUser(token) : {};
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!userId) {
@@ -18,9 +20,7 @@ export const UserProvider = ({ children }) => {
 
     const fetchUser = async () => {
       try {
-        const userInfo = await axios.get(
-          `http://localhost:3000/api/auth/login/${userId}`
-        );
+        const userInfo = await api.get(`/auth/login/${userId}`);
         setUser(userInfo.data);
       } catch (error) {
         console.error("Failed to fetch user data", error);
@@ -32,11 +32,13 @@ export const UserProvider = ({ children }) => {
 
   const login = (userInfo) => {
     setUser(userInfo);
+    navigate("../Products");
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem("token");
+    navigate("../");
   };
 
   return (

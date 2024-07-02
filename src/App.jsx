@@ -6,6 +6,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import ProductPage from "./components/ProductPage";
 import ProductDetailPage from "./components/ProductDetailPage";
+import NotFoundPage from "./components/NotFoundPage";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/Products/:productId" element={<ProductDetailPage />} />
         <Route path="/Login" element={<Login />} />
         <Route path="/Register" element={<Register />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
   );

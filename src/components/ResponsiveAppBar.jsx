@@ -17,7 +17,7 @@ const pages = ["Home", "Products", "Login", "Register"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 function ResponsiveAppBar() {
-  const { user, login, logout } = useUserContext();
+  const { user, logout } = useUserContext();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -144,7 +144,10 @@ function ResponsiveAppBar() {
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 {user ? (
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  <Avatar
+                    alt={user.firstName.toUpperCase()}
+                    src="/static/images/avatar/2.jpg"
+                  />
                 ) : (
                   ""
                 )}
@@ -174,9 +177,11 @@ function ResponsiveAppBar() {
                     </MenuItem>
                   );
                 }
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>;
+                return (
+                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                    <Typography textAlign="center">{setting}</Typography>
+                  </MenuItem>
+                );
               })}
             </Menu>
           </Box>

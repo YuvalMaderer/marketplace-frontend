@@ -1,5 +1,4 @@
 import { Button, TextField } from "@mui/material";
-import axios from "axios";
 import React from "react";
 
 function Register() {
@@ -14,7 +13,7 @@ function Register() {
 
     console.log({ username, password, firstName, lastName }); // Debugging line to check form data
 
-    await axios.post("http://localhost:3000/api/auth/register", {
+    await api.post("/auth/register", {
       username,
       password,
       firstName,

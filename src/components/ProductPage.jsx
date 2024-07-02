@@ -1,21 +1,24 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Slider from "rc-slider"; // Importing Slider directly
 import "rc-slider/assets/index.css"; // Importing the CSS
 import { PRODUCT_BASE_URL } from "../constants/url.constant";
 import DynamicButtons from "./DynamicButtons";
+import { useUserContext } from "./UserProvider";
+import { Button } from "@mui/material";
+import api from "../services/api.service";
 
 function ProductPage() {
   const [products, setProducts] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [newProduct, setNewProduct] = useState({
     name: "",
-    category: "",
+    categories: "",
     price: "",
     quantity: "",
   });
   const [numberOfPages, setNumberOfPages] = useState(null);
+  const { user } = useUserContext();
 
   useEffect(() => {
     async function getProducts() {
@@ -28,7 +31,7 @@ function ProductPage() {
       const options = {
         params: {
           name: searchParams.get("name"),
-          category: searchParams.get("category"),
+          categories: searchParams.get("categories"),
           quantity: searchParams.get("quantity"),
           minPrice: searchParams.get("minPrice"),
           maxPrice: searchParams.get("maxPrice"),
@@ -36,8 +39,8 @@ function ProductPage() {
           inStock: inStock ? true : undefined, // Only include inStock if true
         },
       };
-      const response = await axios.get(PRODUCT_BASE_URL, options);
-      const pageCounter = await axios.get(`${PRODUCT_BASE_URL}/count`, options);
+      const response = await api.get("/product", options);
+      const pageCounter = await api.get(`product/count`, options);
       setNumberOfPages(Math.ceil(pageCounter.data.count / 8));
       setProducts(response.data);
     }
@@ -84,11 +87,14 @@ function ProductPage() {
 
   async function handleNewProductSubmit(ev) {
     ev.preventDefault();
+    const token = localStorage.getItem("token");
     try {
-      await axios.post(PRODUCT_BASE_URL, newProduct);
+      await api.post("product", newProduct, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setNewProduct({
         name: "",
-        category: "",
+        categories: "",
         price: "",
         quantity: "",
       });
@@ -98,7 +104,7 @@ function ProductPage() {
       const options = {
         params: {
           name: searchParams.get("name"),
-          category: searchParams.get("category"),
+          categories: searchParams.get("categories"),
           quantity: searchParams.get("quantity"),
           minPrice: searchParams.get("minPrice"),
           maxPrice: searchParams.get("maxPrice"),
@@ -106,12 +112,23 @@ function ProductPage() {
           inStock: inStock ? true : undefined, // Only include inStock if true
         },
       };
-      const response = await axios.get(PRODUCT_BASE_URL, options);
+      const response = await api.get("product", options);
       setProducts(response.data);
     } catch (error) {
       console.error("Error creating product:", error);
     }
   }
+
+  // if (!user) {
+  //   return (
+  //     <>
+  //       <div>You must login before see the products</div>
+  //       <Button variant="contained" component={Link} to="../Login">
+  //         Login
+  //       </Button>
+  //     </>
+  //   );
+  // }
 
   return (
     <>
@@ -131,15 +148,15 @@ function ProductPage() {
             />
           </div>
           <div className="flex flex-col flex-grow">
-            <label htmlFor="category" className="font-bold mb-1">
+            <label htmlFor="categories" className="font-bold mb-1">
               Category
             </label>
             <input
               className="outline outline-sky-500 p-2 rounded"
-              id="category"
-              name="category"
+              id="categories"
+              name="categories"
               type="text"
-              value={searchParams.get("category") || ""}
+              value={searchParams.get("categories") || ""}
               onChange={handleFilterChange}
             />
           </div>
@@ -191,7 +208,9 @@ function ProductPage() {
                   }`}
                 >
                   <h4 className="font-bold text-lg mb-2">{product.name}</h4>
-                  <p className="text-gray-600">Category: {product.category}</p>
+                  <p className="text-gray-600">
+                    Category: {product.categories}
+                  </p>
                   <p className="text-gray-600">Price: ${product.price}</p>
                   <p className="text-gray-600">Quantity: {product.quantity}</p>
                 </div>
@@ -214,91 +233,93 @@ function ProductPage() {
         </div>
 
         {/* Create Product Card */}
-        <div className="flex justify-center items-center">
-          <div className="relative col-span-full flex justify-center w-[30rem] my-16">
-            <div className="bg-white p-4 rounded-lg shadow-lg border-2 border-dashed border-gray-400 flex flex-col items-center justify-center w-full">
-              <h4 className="font-bold text-lg text-center text-sky-500 mb-4">
-                Create New Product
-              </h4>
-              <form onSubmit={handleNewProductSubmit} className="w-full">
-                <div className="mb-2">
-                  <label
-                    htmlFor="newProductName"
-                    className="block text-sm font-medium text-gray-700"
+        {user && (
+          <div className="flex justify-center items-center">
+            <div className="relative col-span-full flex justify-center w-[30rem] my-16">
+              <div className="bg-white p-4 rounded-lg shadow-lg border-2 border-dashed border-gray-400 flex flex-col items-center justify-center w-full">
+                <h4 className="font-bold text-lg text-center text-sky-500 mb-4">
+                  Create New Product
+                </h4>
+                <form onSubmit={handleNewProductSubmit} className="w-full">
+                  <div className="mb-2">
+                    <label
+                      htmlFor="newProductName"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      id="newProductName"
+                      className="outline outline-sky-500 p-2 rounded w-full"
+                      value={newProduct.name}
+                      onChange={handleNewProductChange}
+                      required
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label
+                      htmlFor="newProductCategory"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Category
+                    </label>
+                    <input
+                      type="text"
+                      name="categories"
+                      id="newProductCategory"
+                      className="outline outline-sky-500 p-2 rounded w-full"
+                      value={newProduct.categories}
+                      onChange={handleNewProductChange}
+                      required
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label
+                      htmlFor="newProductPrice"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Price
+                    </label>
+                    <input
+                      type="number"
+                      name="price"
+                      id="newProductPrice"
+                      className="outline outline-sky-500 p-2 rounded w-full"
+                      value={newProduct.price}
+                      onChange={handleNewProductChange}
+                      required
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label
+                      htmlFor="newProductQuantity"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Quantity
+                    </label>
+                    <input
+                      type="number"
+                      name="quantity"
+                      id="newProductQuantity"
+                      className="outline outline-sky-500 p-2 rounded w-full"
+                      value={newProduct.quantity}
+                      onChange={handleNewProductChange}
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="mt-4 bg-sky-500 text-white py-2 px-4 rounded hover:bg-sky-700 w-full"
                   >
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    id="newProductName"
-                    className="outline outline-sky-500 p-2 rounded w-full"
-                    value={newProduct.name}
-                    onChange={handleNewProductChange}
-                    required
-                  />
-                </div>
-                <div className="mb-2">
-                  <label
-                    htmlFor="newProductCategory"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Category
-                  </label>
-                  <input
-                    type="text"
-                    name="category"
-                    id="newProductCategory"
-                    className="outline outline-sky-500 p-2 rounded w-full"
-                    value={newProduct.category}
-                    onChange={handleNewProductChange}
-                    required
-                  />
-                </div>
-                <div className="mb-2">
-                  <label
-                    htmlFor="newProductPrice"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Price
-                  </label>
-                  <input
-                    type="number"
-                    name="price"
-                    id="newProductPrice"
-                    className="outline outline-sky-500 p-2 rounded w-full"
-                    value={newProduct.price}
-                    onChange={handleNewProductChange}
-                    required
-                  />
-                </div>
-                <div className="mb-2">
-                  <label
-                    htmlFor="newProductQuantity"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Quantity
-                  </label>
-                  <input
-                    type="number"
-                    name="quantity"
-                    id="newProductQuantity"
-                    className="outline outline-sky-500 p-2 rounded w-full"
-                    value={newProduct.quantity}
-                    onChange={handleNewProductChange}
-                    required
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="mt-4 bg-sky-500 text-white py-2 px-4 rounded hover:bg-sky-700 w-full"
-                >
-                  Submit
-                </button>
-              </form>
+                    Submit
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   );

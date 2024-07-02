@@ -1,8 +1,8 @@
 import { Button, TextField } from "@mui/material";
-import axios from "axios";
 import React from "react";
 import { formatJWTTokenToUser } from "../utiles/tokenformat.utils";
 import { useUserContext } from "./UserProvider";
+import api from "../services/api.service";
 
 function Login() {
   const { login } = useUserContext();
@@ -13,7 +13,7 @@ function Login() {
 
     const username = formData.get("username");
     const password = formData.get("password");
-    const res = await axios.post("http://localhost:3000/api/auth/login", {
+    const res = await api.post("/auth/login", {
       username,
       password,
     });
@@ -23,11 +23,8 @@ function Login() {
 
     const { userId } = formatJWTTokenToUser(token);
 
-    const userInfo = await axios.get(
-      `http://localhost:3000/api/auth/login/${userId}`
-    );
+    const userInfo = await api.get(`/auth/login/${userId}`);
 
-    console.log(userInfo.data);
     login(userInfo.data);
   }
 
